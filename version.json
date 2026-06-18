@@ -1,0 +1,8 @@
+{
+  "version": "1.25",
+  "changelog": "Added running script version display in Settings active device card",
+  "scripts": {
+    "15min": "https://raw.githubusercontent.com/Matias/porssisahko-app/main/shelly-porssisahko-15min.js",
+    "clean": "https://raw.githubusercontent.com/Matias/porssisahko-app/main/shelly-porssisahko-clean.js"
+  }
+}
