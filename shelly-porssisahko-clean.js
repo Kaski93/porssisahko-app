@@ -7,7 +7,7 @@
  * Retains 100% of the core pricing, scheduling logic, and autonomous Elering price fetches.
  * 
  * Original script (c) Jussi Isotalo - http://jisotalo.fi
- * Clean, memory-efficient adaptation and Expo mobile app created by Matias. Version 1.25-clean.
+ * Clean, memory-efficient adaptation and Expo mobile app created by (c) Matias Kaski.
  * License: GNU Affero General Public License v3.0 
  */
 
@@ -40,7 +40,7 @@ const CNST = {
 
 let _ = {
   s: {
-    v: "1.25-clean",
+    v: "1.26-avg",
     dn: "",
     configOK: 0,
     timeOK: 0,
