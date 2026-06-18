@@ -6,7 +6,7 @@
  * adapted to support 15-minute price intervals.
  * 
  * Original script (c) Jussi Isotalo - http://jisotalo.fi
- * Clean, memory-efficient adaptation and 15-minute extension by Matias. Version 1.25.
+ * Clean, memory-efficient adaptation and 15-minute extension by (c) Matias Kaski.
  * License: GNU Affero General Public License v3.0 
  */
 
@@ -39,7 +39,7 @@ const CNST = {
 
 let _ = {
   s: {
-    v: "1.25",
+    v: "1.26",
     dn: "",
     configOK: 0,
     timeOK: 0,
