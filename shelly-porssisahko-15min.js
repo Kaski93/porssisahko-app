@@ -39,7 +39,7 @@ const CNST = {
 
 let _ = {
   s: {
-    v: "1.29",
+    v: "1.31",
     dn: "",
     configOK: 0,
     timeOK: 0,
@@ -541,7 +541,7 @@ function runLogicForInstance(c) {
           activeL = (void 0 !== r.m2.l2) ? r.m2.l2 : r.m2.l;
           activeM = (void 0 !== r.m2.m2) ? r.m2.m2 : r.m2.m;
         }
-        if (!cmd[c] && _.s.p[0].now <= ("avg" == activeL ? _.s.p[0].avg : activeL)) {
+        if (_.s.p[0].now <= ("avg" == activeL ? _.s.p[0].avg : activeL)) {
           cmd[c] = true;
           i.st = 6;
         }
@@ -627,8 +627,8 @@ function evaluateCheapestHoursMode(e, instP0) {
 
   // Scale hourly settings to sub-hour intervals
   let p_scaled = t.m2.p * ptsPerHourToUse;
-  let c_scaled = t.m2.c;
-  let c2_scaled = t.m2.c2;
+  let c_scaled = t.m2.c * ptsPerHourToUse;
+  let c2_scaled = t.m2.c2 * ptsPerHourToUse;
   let ps_scaled = t.m2.ps * ptsPerHourToUse;
   let pe_scaled = t.m2.pe * ptsPerHourToUse;
   let ps2_scaled = t.m2.ps2 * ptsPerHourToUse;
