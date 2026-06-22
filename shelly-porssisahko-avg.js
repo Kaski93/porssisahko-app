@@ -40,7 +40,7 @@ const CNST = {
 
 let _ = {
   s: {
-    v: "1.26-avg",
+    v: "1.27-avg",
     dn: "",
     configOK: 0,
     timeOK: 0,
@@ -425,7 +425,20 @@ function runLogicForInstance(c) {
 
       log("logic for #" + (c + 1) + " done, cmd: " + e + " -> output: " + cmd[c]);
 
-      if (1 == r.oc && i.cmd == cmd[c]) {
+      let allMatched = false;
+      if (1 == r.oc) {
+        allMatched = true;
+        for (let e = 0; e < r.o.length; e++) {
+          let swStatus = Shelly.getComponentStatus("switch:" + r.o[e]);
+          let isSwOn = swStatus ? !!swStatus.output : false;
+          if (isSwOn !== cmd[c]) {
+            allMatched = false;
+            break;
+          }
+        }
+      }
+
+      if (1 == r.oc && allMatched) {
         log("outputs already set for #" + (c + 1));
         i.cmd = cmd[c] ? 1 : 0;
         i.chkTs = epoch();
