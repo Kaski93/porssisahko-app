@@ -40,7 +40,7 @@ const CNST = {
 
 let _ = {
   s: {
-    v: "1.29-avg",
+    v: "1.31-avg",
     dn: "",
     configOK: 0,
     timeOK: 0,
