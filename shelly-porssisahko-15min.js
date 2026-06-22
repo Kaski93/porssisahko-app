@@ -39,7 +39,7 @@ const CNST = {
 
 let _ = {
   s: {
-    v: "1.27",
+    v: "1.29",
     dn: "",
     configOK: 0,
     timeOK: 0,
@@ -333,8 +333,27 @@ function getPrices(g) {
           let priceVal = +csvData.substring(priceStartQuote + 1, lastQuote).replace(",", ".");
 
           priceVal = (priceVal / 10) * (100 + (priceVal > 0 ? _.c.c.vat : 0)) / 100;
-          let hr = new Date(1e3 * ts).getHours();
-          priceVal += (7 <= hr && hr < 22) ? _.c.c.day : _.c.c.night;
+          let d = new Date(1e3 * ts);
+          let hr = d.getHours();
+          let tf = _.c.c.night;
+          let tType = _.c.c.t || 0;
+          if (tType === 1) {
+            let m = d.getMonth();
+            let w = d.getDay();
+            let isWinter = (m === 10 || m === 11 || m === 0 || m === 1 || m === 2);
+            let isWorkday = (w >= 1 && w <= 6);
+            let isDayHour = (7 <= hr && hr < 22);
+            if (isWinter && isWorkday && isDayHour) {
+              tf = _.c.c.day;
+            }
+          } else if (tType === 2) {
+            tf = _.c.c.day;
+          } else {
+            if (7 <= hr && hr < 22) {
+              tf = _.c.c.day;
+            }
+          }
+          priceVal += tf;
 
           lineStart = nextLine >= 0 ? nextLine + 1 : -1;
 
@@ -608,8 +627,8 @@ function evaluateCheapestHoursMode(e, instP0) {
 
   // Scale hourly settings to sub-hour intervals
   let p_scaled = t.m2.p * ptsPerHourToUse;
-  let c_scaled = t.m2.c * ptsPerHourToUse;
-  let c2_scaled = t.m2.c2 * ptsPerHourToUse;
+  let c_scaled = t.m2.c;
+  let c2_scaled = t.m2.c2;
   let ps_scaled = t.m2.ps * ptsPerHourToUse;
   let pe_scaled = t.m2.pe * ptsPerHourToUse;
   let ps2_scaled = t.m2.ps2 * ptsPerHourToUse;
