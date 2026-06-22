@@ -40,7 +40,7 @@ const CNST = {
 
 let _ = {
   s: {
-    v: "1.28-avg",
+    v: "1.29-avg",
     dn: "",
     configOK: 0,
     timeOK: 0,
@@ -513,7 +513,7 @@ function runLogicForInstance(c) {
           activeL = (void 0 !== r.m2.l2) ? r.m2.l2 : r.m2.l;
           activeM = (void 0 !== r.m2.m2) ? r.m2.m2 : r.m2.m;
         }
-        if (!cmd[c] && _.s.p[0].now <= ("avg" == activeL ? _.s.p[0].avg : activeL)) {
+        if (_.s.p[0].now <= ("avg" == activeL ? _.s.p[0].avg : activeL)) {
           cmd[c] = true;
           i.st = 6;
         }
