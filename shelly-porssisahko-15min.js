@@ -39,7 +39,7 @@ const CNST = {
 
 let _ = {
   s: {
-    v: "1.31",
+    v: "1.32",
     dn: "",
     configOK: 0,
     timeOK: 0,
@@ -537,7 +537,13 @@ function runLogicForInstance(c) {
         let currHour = currIdx >= 0 ? Math.floor(currIdx / ptsPerHour) : s.getHours();
         let activeL = r.m2.l;
         let activeM = r.m2.m;
-        if (-2 == r.m2.p && currHour >= r.m2.ps2 && currHour < r.m2.pe2) {
+        let inPeriod2 = false;
+        if (r.m2.pe2 < r.m2.ps2) {
+          inPeriod2 = (currHour >= r.m2.ps2 || currHour < r.m2.pe2);
+        } else {
+          inPeriod2 = (currHour >= r.m2.ps2 && currHour < r.m2.pe2);
+        }
+        if (-2 == r.m2.p && inPeriod2) {
           activeL = (void 0 !== r.m2.l2) ? r.m2.l2 : r.m2.l;
           activeM = (void 0 !== r.m2.m2) ? r.m2.m2 : r.m2.m;
         }
@@ -635,8 +641,12 @@ function evaluateCheapestHoursMode(e, instP0) {
   let pe2_scaled = t.m2.pe2 * ptsPerHourToUse;
 
   p_scaled = limit(-2 * ptsPerHourToUse, p_scaled, 24 * ptsPerHourToUse);
-  c_scaled = limit(0, c_scaled, 0 < p_scaled ? p_scaled : pe_scaled - ps_scaled);
-  c2_scaled = limit(0, c2_scaled, pe2_scaled - ps2_scaled);
+  
+  let periodSize = pe_scaled < ps_scaled ? (24 * ptsPerHourToUse - ps_scaled + pe_scaled) : (pe_scaled - ps_scaled);
+  c_scaled = limit(0, c_scaled, 0 < p_scaled ? p_scaled : periodSize);
+
+  let periodSize2 = pe2_scaled < ps2_scaled ? (24 * ptsPerHourToUse - ps2_scaled + pe2_scaled) : (pe2_scaled - ps2_scaled);
+  c2_scaled = limit(0, c2_scaled, periodSize2);
 
   var selectedIntervals = [];
   _inc = p_scaled < 0 ? 1 : p_scaled;
@@ -654,8 +664,18 @@ function evaluateCheapestHoursMode(e, instP0) {
       _start = ps2_scaled;
       _end = pe2_scaled;
     }
-    for (_j = _start; _j < _end && !(_j > pricesToUse.length - 1); _j++) {
-      intervalIndices.push(_j);
+
+    if (_start < _end) {
+      for (_j = _start; _j < _end && !(_j > pricesToUse.length - 1); _j++) {
+        intervalIndices.push(_j);
+      }
+    } else {
+      for (_j = _start; _j < pricesToUse.length; _j++) {
+        intervalIndices.push(_j);
+      }
+      for (_j = 0; _j < _end && !(_j > pricesToUse.length - 1); _j++) {
+        intervalIndices.push(_j);
+      }
     }
 
     if (t.m2.s) {
