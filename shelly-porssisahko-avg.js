@@ -40,7 +40,7 @@ const CNST = {
 
 let _ = {
   s: {
-    v: "1.31-avg",
+    v: "1.32-avg",
     dn: "",
     configOK: 0,
     timeOK: 0,
@@ -509,7 +509,13 @@ function runLogicForInstance(c) {
         let currHour = currIdx >= 0 ? currIdx : s.getHours();
         let activeL = r.m2.l;
         let activeM = r.m2.m;
-        if (-2 === r.m2.p && currHour >= r.m2.ps2 && currHour < r.m2.pe2) {
+        let inPeriod2 = false;
+        if (r.m2.pe2 < r.m2.ps2) {
+          inPeriod2 = (currHour >= r.m2.ps2 || currHour < r.m2.pe2);
+        } else {
+          inPeriod2 = (currHour >= r.m2.ps2 && currHour < r.m2.pe2);
+        }
+        if (-2 === r.m2.p && inPeriod2) {
           activeL = (void 0 !== r.m2.l2) ? r.m2.l2 : r.m2.l;
           activeM = (void 0 !== r.m2.m2) ? r.m2.m2 : r.m2.m;
         }
@@ -569,11 +575,15 @@ function runLogicForInstance(c) {
 function evaluateCheapestHoursMode(e) {
   var t = _.c.i[e];
   t.m2.ps = limit(0, t.m2.ps, 23);
-  t.m2.pe = limit(t.m2.ps, t.m2.pe, 24);
+  t.m2.pe = limit(0, t.m2.pe, 24);
   t.m2.ps2 = limit(0, t.m2.ps2, 23);
-  t.m2.pe2 = limit(t.m2.ps2, t.m2.pe2, 24);
-  t.m2.c = limit(0, t.m2.c, 0 < t.m2.p ? t.m2.p : t.m2.pe - t.m2.ps);
-  t.m2.c2 = limit(0, t.m2.c2, t.m2.pe2 - t.m2.ps2);
+  t.m2.pe2 = limit(0, t.m2.pe2, 24);
+
+  let periodSize = t.m2.pe < t.m2.ps ? (24 - t.m2.ps + t.m2.pe) : (t.m2.pe - t.m2.ps);
+  t.m2.c = limit(0, t.m2.c, 0 < t.m2.p ? t.m2.p : periodSize);
+
+  let periodSize2 = t.m2.pe2 < t.m2.ps2 ? (24 - t.m2.ps2 + t.m2.pe2) : (t.m2.pe2 - t.m2.ps2);
+  t.m2.c2 = limit(0, t.m2.c2, periodSize2);
 
   var selectedHours = [];
   _inc = t.m2.p < 0 ? 1 : t.m2.p;
@@ -591,8 +601,18 @@ function evaluateCheapestHoursMode(e) {
       _start = t.m2.ps2;
       _end = t.m2.pe2;
     }
-    for (_j = _start; _j < _end && !(_j > _.p[0].length - 1); _j++) {
-      hourIndices.push(_j);
+
+    if (_start < _end) {
+      for (_j = _start; _j < _end && !(_j > _.p[0].length - 1); _j++) {
+        hourIndices.push(_j);
+      }
+    } else {
+      for (_j = _start; _j < _.p[0].length; _j++) {
+        hourIndices.push(_j);
+      }
+      for (_j = 0; _j < _end && !(_j > _.p[0].length - 1); _j++) {
+        hourIndices.push(_j);
+      }
     }
 
     if (t.m2.s) {
