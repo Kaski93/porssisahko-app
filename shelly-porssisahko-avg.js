@@ -40,7 +40,7 @@ const CNST = {
 
 let _ = {
   s: {
-    v: "1.32-avg",
+    v: "1.33-avg",
     dn: "",
     configOK: 0,
     timeOK: 0,
@@ -158,32 +158,25 @@ function getConfig(a) {
     };
 
     let fixCount = 0;
-    if (CNST.DEF_CFG.COM || CNST.DEF_CFG.INST) {
-      var o, i = a < 0 ? CNST.DEF_CFG.COM : CNST.DEF_CFG.INST;
-      var r = a < 0 ? _.c.c : _.c.i[a];
-      for (o in i) {
-        if (void 0 === r[o]) {
-          r[o] = i[o];
-          fixCount++;
-        } else if ("object" === typeof i[o] && i[o] !== null) {
-          for (var c in i[o]) {
-            if (void 0 === r[o][c]) {
-              r[o][c] = i[o][c];
-              fixCount++;
-            }
+    var o, i = a < 0 ? CNST.DEF_CFG.COM : CNST.DEF_CFG.INST;
+    var r = a < 0 ? _.c.c : _.c.i[a];
+    for (o in i) {
+      if (void 0 === r[o]) {
+        r[o] = i[o];
+        fixCount++;
+      } else if ("object" === typeof i[o] && i[o] !== null) {
+        for (var c in i[o]) {
+          if (void 0 === r[o][c]) {
+            r[o][c] = i[o][c];
+            fixCount++;
           }
         }
       }
-      if (a >= CNST.INST_COUNT - 1) {
-        // keep in memory for runtime reloads
-      }
-      if (0 < fixCount) {
-        log("merged default config fields in RAM");
-      }
-      n(true);
-    } else {
-      n(true);
     }
+    if (0 < fixCount) {
+      log("merged default config fields in RAM");
+    }
+    n(true);
   });
 }
 
@@ -383,6 +376,7 @@ function getPrices(g) {
         _.s.p[g].ts = 0;
         _.p[g] = [];
       }
+      o = null; // Free HTTP response object explicitly
       if (0 == g) reqLogic();
       loopRunning = false;
       Timer.set(500, false, loop);
