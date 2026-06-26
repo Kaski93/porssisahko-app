@@ -39,7 +39,7 @@ const CNST = {
 
 let _ = {
   s: {
-    v: "1.32",
+    v: "1.33",
     dn: "",
     configOK: 0,
     timeOK: 0,
@@ -161,32 +161,25 @@ function getConfig(a) {
     };
 
     let fixCount = 0;
-    if (CNST.DEF_CFG.COM || CNST.DEF_CFG.INST) {
-      var o, i = a < 0 ? CNST.DEF_CFG.COM : CNST.DEF_CFG.INST;
-      var r = a < 0 ? _.c.c : _.c.i[a];
-      for (o in i) {
-        if (void 0 === r[o]) {
-          r[o] = i[o];
-          fixCount++;
-        } else if ("object" === typeof i[o] && i[o] !== null) {
-          for (var c in i[o]) {
-            if (void 0 === r[o][c]) {
-              r[o][c] = i[o][c];
-              fixCount++;
-            }
+    var o, i = a < 0 ? CNST.DEF_CFG.COM : CNST.DEF_CFG.INST;
+    var r = a < 0 ? _.c.c : _.c.i[a];
+    for (o in i) {
+      if (void 0 === r[o]) {
+        r[o] = i[o];
+        fixCount++;
+      } else if ("object" === typeof i[o] && i[o] !== null) {
+        for (var c in i[o]) {
+          if (void 0 === r[o][c]) {
+            r[o][c] = i[o][c];
+            fixCount++;
           }
         }
       }
-      if (a >= CNST.INST_COUNT - 1) {
-        // keep in memory for runtime reloads
-      }
-      if (0 < fixCount) {
-        log("merged default config fields in RAM");
-      }
-      n(true);
-    } else {
-      n(true);
     }
+    if (0 < fixCount) {
+      log("merged default config fields in RAM");
+    }
+    n(true);
   });
 }
 
@@ -414,30 +407,9 @@ function runLogicForInstance(c) {
     if (!r.m0) r.m0 = { c: 0 };
     if (!r.m1) r.m1 = { l: 0 };
     if (!r.m2) r.m2 = { p: 24, c: 0, l: -999, s: 0, m: 999, ps: 0, pe: 23, ps2: 0, pe2: 23, c2: 0, l2: -999, m2: 999 };
-    let instP0 = [];
-    if (r && r.h1 == 1) {
-      for (let e = 0; e < _.p[0].length; e++) {
-        instP0.push(_.p[0][e]);
-      }
-      for (let h = 0; h < 24; h++) {
-        let sum = 0;
-        let startIdx = h * ptsPerHour;
-        let endIdx = (h + 1) * ptsPerHour;
-        if (endIdx > instP0.length) endIdx = instP0.length;
-        let count = endIdx - startIdx;
-        if (count > 0) {
-          for (let idx = startIdx; idx < endIdx; idx++) {
-            sum += instP0[idx];
-          }
-          let avg = sum / count;
-          for (let idx = startIdx; idx < endIdx; idx++) {
-            instP0[idx] = avg;
-          }
-        }
-      }
-    } else {
-      instP0 = _.p[0];
-    }
+    // Always use a reference — no full array copy needed.
+    // When h1==1, the hourly average for the current slot is computed inline below.
+    let instP0 = _.p[0];
 
     let currIdx = -1;
     (function () {
@@ -445,7 +417,15 @@ function runLogicForInstance(c) {
         var currentTs = epoch();
         for (let e = 0; e < instP0.length; e++) {
           if (isCurrentInterval(_.pb[0] + e * intervalSecs, currentTs, ptsPerHour)) {
-            _.s.p[0].now = instP0[e];
+            if (r.h1 == 1 && ptsPerHour > 1) {
+              // Compute current-hour average inline — no full-array copy required
+              let hStart = Math.floor(e / ptsPerHour) * ptsPerHour;
+              let hSum = 0;
+              for (let k = hStart; k < hStart + ptsPerHour && k < instP0.length; k++) hSum += instP0[k];
+              _.s.p[0].now = hSum / ptsPerHour;
+            } else {
+              _.s.p[0].now = instP0[e];
+            }
             currIdx = e;
             return;
           }
