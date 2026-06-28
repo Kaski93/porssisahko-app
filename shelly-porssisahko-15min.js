@@ -39,7 +39,7 @@ const CNST = {
 
 let _ = {
   s: {
-    v: "1.33",
+    v: "1.34",
     dn: "",
     configOK: 0,
     timeOK: 0,
@@ -57,7 +57,6 @@ let _ = {
   si: [CNST.DEF_INST_ST],
   p: [[], []],
   pb: [0, 0],
-  h: [],
   c: { c: CNST.DEF_CFG.COM, i: [CNST.DEF_CFG.INST] }
 };
 
@@ -246,7 +245,6 @@ function shouldRunLogic(e) {
   var t = _.si[e];
   var s = _.c.i[e] || {};
   if (1 != s.en) {
-    _.h[e] = [];
     return false;
   }
   var currDate = new Date();
@@ -486,13 +484,6 @@ function runLogicForInstance(c) {
             if (success) successCount++;
             if (callbackCount == totalOutputs) {
               if (successCount == callbackCount) {
-                if (i.cmd != cmd[c]) {
-                  let historyLen = 0 < _.s.enCnt ? CNST.HIST_LEN / _.s.enCnt : CNST.HIST_LEN;
-                  while (0 < CNST.HIST_LEN && _.h[c].length >= historyLen) {
-                    _.h[c].splice(0, 1);
-                  }
-                  _.h[c].push([epoch(), cmd[c] ? 1 : 0, _.si[c].st]);
-                }
                 i.cmd = cmd[c] ? 1 : 0;
                 i.chkTs = epoch();
                 Timer.set(500, false, loop);
@@ -711,7 +702,6 @@ for (let e = 0; e < CNST.INST_COUNT; e++) {
   _.si.push(Object.assign({}, CNST.DEF_INST_ST));
   _.c.i.push(Object.assign({}, CNST.DEF_CFG.INST));
   _.c.c.names.push("-");
-  _.h.push([]);
   cmd.push(false);
 }
 CNST.DEF_INST_ST = null;
@@ -764,11 +754,7 @@ HTTPServer.registerEndpoint("", function (s, n) {
         n.body = JSON.stringify(_.c);
       }
     } else if ("h" === o.r) {
-      if (0 <= i && i < CNST.INST_COUNT) {
-        n.body = JSON.stringify(_.h[i]);
-      } else {
-        n.body = JSON.stringify(_.h);
-      }
+      n.body = "[]";
     } else if ("r" === o.r) {
       if (0 <= i && i < CNST.INST_COUNT) {
         log("config changed for #" + (i + 1));
