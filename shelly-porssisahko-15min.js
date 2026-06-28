@@ -1,13 +1,13 @@
 /**
  * @license
  * shelly-porssisahko-15min
- * 
+ *
  * Clean, optimized, and memory-efficient version of the shelly-porssisahko script,
  * adapted to support 15-minute price intervals.
- * 
+ *
  * Original script (c) Jussi Isotalo - http://jisotalo.fi
  * Clean, memory-efficient adaptation and 15-minute extension by (c) Matias Kaski.
- * License: GNU Affero General Public License v3.0 
+ * License: GNU Affero General Public License v3.0
  */
 
 const CNST = {
@@ -39,7 +39,7 @@ const CNST = {
 
 let _ = {
   s: {
-    v: "1.34",
+    v: "1.35",
     dn: "",
     configOK: 0,
     timeOK: 0,
@@ -66,7 +66,8 @@ let prevEpoch = 0;
 let loopRunning = false;
 
 function getKvsKey(e) {
-  let t = "porssi";
+  let sid = Shelly.getCurrentScriptId();
+  let t = sid > 1 ? "porssi_s" + sid : "porssi";
   return 0 <= e ? t + "-" + (e + 1) : t;
 }
 
@@ -224,7 +225,7 @@ function pricesNeeded(e) {
   if (1 == e) {
     s = _.s.timeOK && 0 === _.s.p[1].ts && 15 <= t.getHours();
   } else {
-    var dayChanged = getDate(new Date(1e3 * _.s.p[0].ts)) !== getDate(t);
+    var dayChanged = Math.floor(_.s.p[0].ts / 86400) !== Math.floor(epoch(t) / 86400);
     if (dayChanged) {
       _.s.p[1].ts = 0;
       _.p[1] = [];
@@ -498,7 +499,7 @@ function runLogicForInstance(c) {
     if (0 == r.mode) {
       cmd[c] = (1 == r.m0.c);
       i.st = 1;
-    } else if (_.s.timeOK && 0 < _.s.p[0].ts && getDate(new Date(1e3 * _.s.p[0].ts)) === getDate(s)) {
+    } else if (_.s.timeOK && 0 < _.s.p[0].ts && Math.floor(_.s.p[0].ts / 86400) === Math.floor(epoch(s) / 86400)) {
       if (1 == r.mode) {
         cmd[c] = _.s.p[0].now <= ("avg" == r.m1.l ? _.s.p[0].avg : r.m1.l);
         i.st = cmd[c] ? 2 : 3;
@@ -602,21 +603,24 @@ function evaluateCheapestHoursMode(e, instP0) {
     intervalSecsToUse = 3600;
   }
 
-  // Scale hourly settings to sub-hour intervals
+  // Get timezone offset in hours from state
+  let tzh = _.s.tzh;
+
+  let ps = t.m2.ps;
+  let pe = t.m2.pe;
+  let ps2 = t.m2.ps2;
+  let pe2 = t.m2.pe2;
+
   let p_scaled = t.m2.p * ptsPerHourToUse;
   let c_scaled = t.m2.c * ptsPerHourToUse;
   let c2_scaled = t.m2.c2 * ptsPerHourToUse;
-  let ps_scaled = t.m2.ps * ptsPerHourToUse;
-  let pe_scaled = t.m2.pe * ptsPerHourToUse;
-  let ps2_scaled = t.m2.ps2 * ptsPerHourToUse;
-  let pe2_scaled = t.m2.pe2 * ptsPerHourToUse;
 
   p_scaled = limit(-2 * ptsPerHourToUse, p_scaled, 24 * ptsPerHourToUse);
-  
-  let periodSize = pe_scaled < ps_scaled ? (24 * ptsPerHourToUse - ps_scaled + pe_scaled) : (pe_scaled - ps_scaled);
+
+  let periodSize = pe < ps ? (24 - ps + pe) * ptsPerHourToUse : (pe - ps) * ptsPerHourToUse;
   c_scaled = limit(0, c_scaled, 0 < p_scaled ? p_scaled : periodSize);
 
-  let periodSize2 = pe2_scaled < ps2_scaled ? (24 * ptsPerHourToUse - ps2_scaled + pe2_scaled) : (pe2_scaled - ps2_scaled);
+  let periodSize2 = pe2 < ps2 ? (24 - ps2 + pe2) * ptsPerHourToUse : (pe2 - ps2) * ptsPerHourToUse;
   c2_scaled = limit(0, c2_scaled, periodSize2);
 
   var selectedIntervals = [];
@@ -626,25 +630,19 @@ function evaluateCheapestHoursMode(e, instP0) {
     if (_cnt <= 0) continue;
 
     var intervalIndices = [];
-    _start = _i;
-    _end = _i + p_scaled;
-    if (p_scaled < 0 && 0 == _i) {
-      _start = ps_scaled;
-      _end = pe_scaled;
-    } else if (p_scaled < 0 && 1 == _i) {
-      _start = ps2_scaled;
-      _end = pe2_scaled;
-    }
-
-    if (_start < _end) {
-      for (_j = _start; _j < _end && !(_j > pricesToUse.length - 1); _j++) {
-        intervalIndices.push(_j);
+    if (p_scaled < 0) {
+      let activePs = (0 == _i) ? ps : ps2;
+      let activePe = (0 == _i) ? pe : pe2;
+      for (_j = 0; _j < pricesToUse.length; _j++) {
+        let localH = (Math.floor(_j / ptsPerHourToUse) + tzh) % 24;
+        if (localH >= activePs && localH < activePe) {
+          intervalIndices.push(_j);
+        }
       }
     } else {
-      for (_j = _start; _j < pricesToUse.length; _j++) {
-        intervalIndices.push(_j);
-      }
-      for (_j = 0; _j < _end && !(_j > pricesToUse.length - 1); _j++) {
+      _start = _i;
+      _end = _i + p_scaled;
+      for (_j = _start; _j < _end && !(_j > pricesToUse.length - 1); _j++) {
         intervalIndices.push(_j);
       }
     }
@@ -668,12 +666,13 @@ function evaluateCheapestHoursMode(e, instP0) {
     } else {
       for (_j = 0, _k = 1; _k < intervalIndices.length; _k++) {
         var val = intervalIndices[_k];
-        for (_j = _k - 1; 0 <= _j && pricesToUse[val] < pricesToUse[intervalIndices[_j]]; _j--) {
+        let valPrice = pricesToUse[val];
+        for (_j = _k - 1; 0 <= _j && valPrice < pricesToUse[intervalIndices[_j]]; _j--) {
           intervalIndices[_j + 1] = intervalIndices[_j];
         }
         intervalIndices[_j + 1] = val;
       }
-      for (_j = 0; _j < _cnt; _j++) {
+      for (_j = 0; _j < _cnt && _j < intervalIndices.length; _j++) {
         selectedIntervals.push(intervalIndices[_j]);
       }
     }
@@ -684,7 +683,8 @@ function evaluateCheapestHoursMode(e, instP0) {
   let currentTs = epoch();
   let match = false;
   for (let e = 0; e < selectedIntervals.length; e++) {
-    if (isCurrentInterval(_.pb[0] + selectedIntervals[e] * intervalSecsToUse, currentTs, ptsPerHourToUse)) {
+    let idx = selectedIntervals[e];
+    if (isCurrentInterval(_.pb[0] + idx * intervalSecsToUse, currentTs, ptsPerHourToUse)) {
       match = true;
       break;
     }
