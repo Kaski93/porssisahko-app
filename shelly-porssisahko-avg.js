@@ -435,7 +435,7 @@ function runLogicForInstance(c) {
       cmd[c] = e;
       if (r.i) cmd[c] = !cmd[c];
 
-      log("logic for #" + (c + 1) + " done, cmd: " + e + " -> output: " + cmd[c]);
+      log("logic for #" + (c + 1) + " - time: " + s.getHours() + ":" + (s.getMinutes() < 10 ? "0" + s.getMinutes() : s.getMinutes()) + " (tz: " + _.s.tz + "), status code: " + i.st + " - cmd: " + e + " -> output: " + cmd[c]);
 
       let allMatched = false;
       if (1 == r.oc) {
@@ -565,8 +565,8 @@ function evaluateCheapestHoursMode(e) {
   t.m2.ps2 = limit(0, t.m2.ps2, 23);
   t.m2.pe2 = limit(0, t.m2.pe2, 24);
 
-  // Get timezone offset in hours from state
-  let tzh = _.s.tzh;
+  // Get local start hour of the fetched price data
+  let baseHour = new Date(1e3 * _.pb[0]).getHours();
 
   let ps = t.m2.ps;
   let pe = t.m2.pe;
@@ -590,7 +590,7 @@ function evaluateCheapestHoursMode(e) {
       let activePs = (0 == _i) ? ps : ps2;
       let activePe = (0 == _i) ? pe : pe2;
       for (_j = 0; _j < _.p[0].length; _j++) {
-        let localH = (Math.floor(_j) + tzh) % 24;
+        let localH = (Math.floor(_j) + baseHour) % 24;
         if (localH >= activePs && localH < activePe) {
           hourIndices.push(_j);
         }
