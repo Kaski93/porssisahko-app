@@ -40,7 +40,7 @@ const CNST = {
 
 let _ = {
   s: {
-    v: "1.34-avg",
+    v: "1.35-avg",
     dn: "",
     configOK: 0,
     timeOK: 0,
@@ -66,7 +66,8 @@ let prevEpoch = 0;
 let loopRunning = false;
 
 function getKvsKey(e) {
-  let t = "porssi";
+  let sid = Shelly.getCurrentScriptId();
+  let t = sid > 1 ? "porssi_s" + sid : "porssi";
   return 0 <= e ? t + "-" + (e + 1) : t;
 }
 
@@ -221,7 +222,7 @@ function pricesNeeded(e) {
   if (1 == e) {
     s = _.s.timeOK && 0 === _.s.p[1].ts && 15 <= t.getHours();
   } else {
-    var dayChanged = getDate(new Date(1e3 * _.s.p[0].ts)) !== getDate(t);
+    var dayChanged = Math.floor(_.s.p[0].ts / 86400) !== Math.floor(epoch(t) / 86400);
     if (dayChanged) {
       _.s.p[1].ts = 0;
       _.p[1] = [];
@@ -484,7 +485,7 @@ function runLogicForInstance(c) {
     if (0 === r.mode) {
       cmd[c] = (1 === r.m0.c);
       i.st = 1;
-    } else if (_.s.timeOK && 0 < _.s.p[0].ts && getDate(new Date(1e3 * _.s.p[0].ts)) === getDate(s)) {
+    } else if (_.s.timeOK && 0 < _.s.p[0].ts && Math.floor(_.s.p[0].ts / 86400) === Math.floor(epoch(s) / 86400)) {
       if (1 === r.mode) {
         cmd[c] = _.s.p[0].now <= ("avg" == r.m1.l ? _.s.p[0].avg : r.m1.l);
         i.st = cmd[c] ? 2 : 3;
@@ -564,10 +565,18 @@ function evaluateCheapestHoursMode(e) {
   t.m2.ps2 = limit(0, t.m2.ps2, 23);
   t.m2.pe2 = limit(0, t.m2.pe2, 24);
 
-  let periodSize = t.m2.pe < t.m2.ps ? (24 - t.m2.ps + t.m2.pe) : (t.m2.pe - t.m2.ps);
+  // Get timezone offset in hours from state
+  let tzh = _.s.tzh;
+
+  let ps = t.m2.ps;
+  let pe = t.m2.pe;
+  let ps2 = t.m2.ps2;
+  let pe2 = t.m2.pe2;
+
+  let periodSize = pe < ps ? (24 - ps + pe) : (pe - ps);
   t.m2.c = limit(0, t.m2.c, 0 < t.m2.p ? t.m2.p : periodSize);
 
-  let periodSize2 = t.m2.pe2 < t.m2.ps2 ? (24 - t.m2.ps2 + t.m2.pe2) : (t.m2.pe2 - t.m2.ps2);
+  let periodSize2 = pe2 < ps2 ? (24 - ps2 + pe2) : (pe2 - ps2);
   t.m2.c2 = limit(0, t.m2.c2, periodSize2);
 
   var selectedHours = [];
@@ -577,25 +586,19 @@ function evaluateCheapestHoursMode(e) {
     if (_cnt <= 0) continue;
 
     var hourIndices = [];
-    _start = _i;
-    _end = _i + t.m2.p;
-    if (t.m2.p < 0 && 0 == _i) {
-      _start = t.m2.ps;
-      _end = t.m2.pe;
-    } else if (-2 == t.m2.p && 1 == _i) {
-      _start = t.m2.ps2;
-      _end = t.m2.pe2;
-    }
-
-    if (_start < _end) {
-      for (_j = _start; _j < _end && !(_j > _.p[0].length - 1); _j++) {
-        hourIndices.push(_j);
+    if (t.m2.p < 0) {
+      let activePs = (0 == _i) ? ps : ps2;
+      let activePe = (0 == _i) ? pe : pe2;
+      for (_j = 0; _j < _.p[0].length; _j++) {
+        let localH = (Math.floor(_j) + tzh) % 24;
+        if (localH >= activePs && localH < activePe) {
+          hourIndices.push(_j);
+        }
       }
     } else {
-      for (_j = _start; _j < _.p[0].length; _j++) {
-        hourIndices.push(_j);
-      }
-      for (_j = 0; _j < _end && !(_j > _.p[0].length - 1); _j++) {
+      _start = _i;
+      _end = _i + t.m2.p;
+      for (_j = _start; _j < _end && !(_j > _.p[0].length - 1); _j++) {
         hourIndices.push(_j);
       }
     }
@@ -619,12 +622,13 @@ function evaluateCheapestHoursMode(e) {
     } else {
       for (_j = 0, _k = 1; _k < hourIndices.length; _k++) {
         var val = hourIndices[_k];
-        for (_j = _k - 1; 0 <= _j && _.p[0][val][1] < _.p[0][hourIndices[_j]][1]; _j--) {
+        let valPrice = _.p[0][val][1];
+        for (_j = _k - 1; 0 <= _j && valPrice < _.p[0][hourIndices[_j]][1]; _j--) {
           hourIndices[_j + 1] = hourIndices[_j];
         }
         hourIndices[_j + 1] = val;
       }
-      for (_j = 0; _j < _cnt; _j++) {
+      for (_j = 0; _j < _cnt && _j < hourIndices.length; _j++) {
         selectedHours.push(hourIndices[_j]);
       }
     }
@@ -635,7 +639,8 @@ function evaluateCheapestHoursMode(e) {
   let currentTs = epoch();
   let match = false;
   for (let e = 0; e < selectedHours.length; e++) {
-    if (isCurrentHour(_.p[0][selectedHours[e]][0], currentTs)) {
+    let idx = selectedHours[e];
+    if (isCurrentHour(_.p[0][idx][0], currentTs)) {
       match = true;
       break;
     }
