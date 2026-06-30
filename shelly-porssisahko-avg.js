@@ -566,7 +566,7 @@ function evaluateCheapestHoursMode(e) {
   t.m2.pe2 = limit(0, t.m2.pe2, 24);
 
   // Get local start hour of the fetched price data
-  let baseHour = new Date(1e3 * _.pb[0]).getHours();
+  let baseHour = new Date(1e3 * _.p[0][0][0]).getHours();
 
   let ps = t.m2.ps;
   let pe = t.m2.pe;
