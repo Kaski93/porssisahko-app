@@ -45,4 +45,4 @@ The app establishes network connections solely to:
 2. **Control Local Shelly Devices:** Communicates directly with Shelly devices over your local Wi-Fi network.
 
 ### 4. Analytics & Tracking
-The app **does not use** any third-party tracking, advertising identifiers (`AD_ID`), or analytics services.
+The app **does not use** any third-party tracking, advertising identifiers (`AD_ID`), or analytics services..
