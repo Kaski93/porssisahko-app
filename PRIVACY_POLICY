@@ -1,0 +1,48 @@
+# Tietosuojaseloste – Pörssisähkö App
+
+**Viimeksi päivitetty:** 10. elokuuta 2026
+
+Pörssisähkö App ("sovellus") on suunniteltu kunnioittamaan käyttäjän yksityisyyttä sataprosenttisesti. Tämä tietosuojaseloste selittää, miten sovellus käsittelee tietoja.
+
+---
+
+### 1. Henkilötietojen kerääminen ja käsittely
+**Pörssisähkö App ei kerää, tallenna, siirrä eikä myy mitään henkilötietojasi.** Sovelluksen käyttö ei vaadi rekisteröitymistä, käyttäjätiliä tai kirjautumista.
+
+### 2. Sovelluksen tallentamat tiedot
+Kaikki sovelluksessa määrittämäsi asetukset (kuten Shelly-laitteiden IP-osoitteet, ohjausrajat, aikataulut ja sähkösopimuksen marginaalit) tallennetaan **ainoastaan paikallisesti omalle laitteellesi** (React Native AsyncStorage / local storage). Näitä tietoja ei koskaan lähetetä ulkopuolisille palvelimille tai kehittäjälle.
+
+### 3. Verkkoyhteydet ja ulkoiset palvelut
+Sovellus muodostaa verkkoyhteyden vain seuraaviin tarkoituksiin:
+1. **Pörssisähkön hintatiedot:** Sovellus hakee julkiset Nord Pool -sähkönhintatiedot avoimista rajapinnoista (mm. Elering API). Hakujen yhteydessä ei lähetetä mitään laite- tai henkilötunnisteita.
+2. **Shelly-laitteiden paikallisohjaus:** Sovellus viestii suoraan omassa kotiverkossasi (Wi-Fi / LAN) sijaitsevien Shelly-älyreleiden kanssa. Viestintä tapahtuu täysin paikallisesti laitteesi ja Shelly-releen välillä.
+
+### 4. Analytiikka ja seuranta
+Sovellus **ei käytä** mitään kolmannen osapuolen analytiikka- tai seuranta-työkaluja (kuten Google Analytics, Firebase Analytics, mainostunnuksia AD_ID tai muita seurantatyökaluja).
+
+### 5. Yhteystiedot
+Jos sinulla on kysyttävää sovelluksesta tai tästä tietosuojaselosteesta, voit ottaa yhteyttä kehittäjään:
+- **Kehittäjä:** Matias Kaski
+- **Verkkosivusto / Lähdekoodi:** [GitHub Repository](https://github.com/kaski93/Porssisahko-app)
+
+---
+
+# Privacy Policy – Pörssisähkö App
+
+**Last updated:** August 10, 2026
+
+Pörssisähkö App ("the app") is built with full commitment to user privacy. This policy explains how data is handled by the app.
+
+### 1. Data Collection & Processing
+**Pörssisähkö App does not collect, store, transmit, or sell any personal data.** No user accounts or registrations are required.
+
+### 2. Local Storage
+All app configurations (such as Shelly IP addresses, price thresholds, custom schedules, and tariff settings) are stored **exclusively on your local device**. This data is never sent to external servers or to the developer.
+
+### 3. Network Usage
+The app establishes network connections solely to:
+1. **Fetch Public Electricity Spot Prices:** Retrieves public Nord Pool price data via public APIs (e.g. Elering). No personal identifiers are attached to these requests.
+2. **Control Local Shelly Devices:** Communicates directly with Shelly devices over your local Wi-Fi network.
+
+### 4. Analytics & Tracking
+The app **does not use** any third-party tracking, advertising identifiers (`AD_ID`), or analytics services.
