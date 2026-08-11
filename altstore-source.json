@@ -1,7 +1,7 @@
 {
   "name": "Pörssisähkö App Source",
   "identifier": "com.kaski93.porssisahko-source",
-  "marketplaceID": "com.kaski93.porssisahko-source",
+  "marketplaceID": "com.rileytestut.AltStorePAL",
   "apps": [
     {
       "name": "Pörssisähkö App",
