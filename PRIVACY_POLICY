@@ -1,6 +1,6 @@
 # Tietosuojaseloste – Pörssisähkö App
 
-**Viimeksi päivitetty:** 10. elokuuta 2026
+**Viimeksi päivitetty:** 21. elokuuta 2026
 
 Pörssisähkö App ("sovellus") on suunniteltu kunnioittamaan käyttäjän yksityisyyttä sataprosenttisesti. Tämä tietosuojaseloste selittää, miten sovellus käsittelee tietoja.
 
@@ -10,39 +10,93 @@ Pörssisähkö App ("sovellus") on suunniteltu kunnioittamaan käyttäjän yksit
 **Pörssisähkö App ei kerää, tallenna, siirrä eikä myy mitään henkilötietojasi.** Sovelluksen käyttö ei vaadi rekisteröitymistä, käyttäjätiliä tai kirjautumista.
 
 ### 2. Sovelluksen tallentamat tiedot
-Kaikki sovelluksessa määrittämäsi asetukset (kuten Shelly-laitteiden IP-osoitteet, ohjausrajat, aikataulut ja sähkösopimuksen marginaalit) tallennetaan **ainoastaan paikallisesti omalle laitteellesi** (React Native AsyncStorage / local storage). Näitä tietoja ei koskaan lähetetä ulkopuolisille palvelimille tai kehittäjälle.
+Kaikki sovelluksessa määrittämäsi asetukset (kuten Shelly-laitteiden IP-osoitteet, ohjausrajat, aikataulut, laitekohtaiset tehotiedot ja sähkösopimuksen marginaalit) tallennetaan **ainoastaan paikallisesti omalle laitteellesi** (React Native AsyncStorage). Näitä tietoja ei koskaan lähetetä ulkopuolisille palvelimille tai kehittäjälle.
 
 ### 3. Verkkoyhteydet ja ulkoiset palvelut
 Sovellus muodostaa verkkoyhteyden vain seuraaviin tarkoituksiin:
-1. **Pörssisähkön hintatiedot:** Sovellus hakee julkiset Nord Pool -sähkönhintatiedot avoimista rajapinnoista (mm. Elering API). Hakujen yhteydessä ei lähetetä mitään laite- tai henkilötunnisteita.
-2. **Shelly-laitteiden paikallisohjaus:** Sovellus viestii suoraan omassa kotiverkossasi (Wi-Fi / LAN) sijaitsevien Shelly-älyreleiden kanssa. Viestintä tapahtuu täysin paikallisesti laitteesi ja Shelly-releen välillä.
+1. **Pörssisähkön hintatiedot:** Sovellus hakee julkiset sähkönhintatiedot avoimista rajapinnoista (mm. Elering API). Hakujen yhteydessä ei lähetetä laite- tai henkilötunnisteita.
+2. **Shelly-laitteiden paikallisohjaus:** Sovellus viestii suoraan omassa kotiverkossasi (Wi-Fi / LAN) sijaitsevien Shelly-älylaitteiden kanssa. Viestintä tapahtuu täysin paikallisesti laitteesi ja Shelly-releen välillä ilman pilvipalveluita.
+3. **Skriptipäivitykset:** Sovellus tarkistaa ja lataa uusimmat ohjausskriptit suoraan julkisesta GitHub-lähdekoodivarastosta (`raw.githubusercontent.com`).
 
-### 4. Analytiikka ja seuranta
-Sovellus **ei käytä** mitään kolmannen osapuolen analytiikka- tai seuranta-työkaluja (kuten Google Analytics, Firebase Analytics, mainostunnuksia AD_ID tai muita seurantatyökaluja).
+### 4. Laitteen käyttöoikeudet (Permissions)
+- **Lähiverkko ja Wi-Fi (Local Network):** Sovellus tarvitsee pääsyn lähiverkkoon löytääkseen ja ohjatakseen kotiverkossasi olevia Shelly-laitteita.
+- **Internet-yhteys:** Tarvitaan ajantasaisten sähkön hintatietojen ja skriptipäivitysten lataamiseen.
 
-### 5. Yhteystiedot
+### 5. Analytiikka ja seuranta
+Sovellus **ei käytä** mitään kolmannen osapuolen analytiikka- tai seurantatyökaluja (kuten Google Analytics, Firebase Analytics, mainostunnuksia AD_ID tai vastaavia seurantakirjastoja).
+
+### 6. Yhteystiedot
 Jos sinulla on kysyttävää sovelluksesta tai tästä tietosuojaselosteesta, voit ottaa yhteyttä kehittäjään:
 - **Kehittäjä:** Matias Kaski
+- **Sähköposti:** kaskimatias@gmail.com
 - **Verkkosivusto / Lähdekoodi:** [GitHub Repository](https://github.com/kaski93/Porssisahko-app)
 
 ---
 
 # Privacy Policy – Pörssisähkö App
 
-**Last updated:** August 10, 2026
+**Last updated:** August 21, 2026
 
-Pörssisähkö App ("the app") is built with full commitment to user privacy. This policy explains how data is handled by the app.
+Pörssisähkö App ("the app") is designed with a 100% commitment to user privacy. This privacy policy explains how data is handled by the application.
+
+---
 
 ### 1. Data Collection & Processing
-**Pörssisähkö App does not collect, store, transmit, or sell any personal data.** No user accounts or registrations are required.
+**Pörssisähkö App does not collect, store, transmit, or sell any personal data.** The app does not require any user registration, account creation, or login.
 
-### 2. Local Storage
-All app configurations (such as Shelly IP addresses, price thresholds, custom schedules, and tariff settings) are stored **exclusively on your local device**. This data is never sent to external servers or to the developer.
+### 2. Locally Stored Data
+All settings and configurations you configure within the app (such as Shelly IP addresses, price limits, schedules, appliance wattage, and electricity contract margins) are stored **exclusively on your local device** (React Native AsyncStorage). This data is never sent to external servers or to the developer.
 
-### 3. Network Usage
-The app establishes network connections solely to:
-1. **Fetch Public Electricity Spot Prices:** Retrieves public Nord Pool price data via public APIs (e.g. Elering). No personal identifiers are attached to these requests.
-2. **Control Local Shelly Devices:** Communicates directly with Shelly devices over your local Wi-Fi network.
+### 3. Network Connections & External Services
+The app establishes network connections solely for the following purposes:
+1. **Spot Electricity Prices:** The app fetches public spot price data from open APIs (e.g., Elering API). No personal identifiers or device telemetry are sent with these requests.
+2. **Local Shelly Device Control:** The app communicates directly with Shelly smart relays connected to your local home network (Wi-Fi / LAN). Communication remains strictly local between your device and the Shelly hardware without cloud dependencies.
+3. **Script Updates:** The app checks and downloads the latest control scripts directly from our public GitHub repository (`raw.githubusercontent.com`).
 
-### 4. Analytics & Tracking
-The app **does not use** any third-party tracking, advertising identifiers (`AD_ID`), or analytics services..
+### 4. Device Permissions
+- **Local Network / Wi-Fi:** Required to discover, connect to, and manage Shelly relays on your local home network.
+- **Internet Access:** Required to fetch live spot electricity prices and download script updates.
+
+### 5. Analytics & Tracking
+The app **does not use** any third-party analytics, diagnostic tracking, advertising identifiers (`AD_ID`), or tracking SDKs (such as Google Analytics or Firebase).
+
+### 6. Contact Information
+If you have any questions regarding the app or this privacy policy, please contact the developer:
+- **Developer:** Matias Kaski
+- **Email:** kaskimatias@gmail.com
+- **Website / Source Code:** [GitHub Repository](https://github.com/kaski93/Porssisahko-app)
+
+---
+
+# Integritetspolicy – Pörssisähkö App
+
+**Senast uppdaterad:** 21 augusti 2026
+
+Pörssisähkö App ("appen") är utformad för att respektera användarens integritet till 100 %. Denna integritetspolicy förklarar hur appen hanterar data.
+
+---
+
+### 1. Insamling och behandling av personuppgifter
+**Pörssisähkö App samlar inte in, sparar inte, överför inte och säljer inte några personuppgifter.** Användning av appen kräver varken registrering, användarkonto eller inloggning.
+
+### 2. Data som sparas i appen
+Alla inställningar du gör i appen (såsom Shelly-enheternas IP-adresser, prisgränser, scheman, effektvärden och elavtalsmarginaler) sparas **endast lokalt på din egen enhet** (React Native AsyncStorage). Denna data skickas aldrig till externa servrar eller till utvecklaren.
+
+### 3. Nätverksanslutningar och externa tjänster
+Appen upprättar nätverksanslutning uteslutande för följande ändamål:
+1. **Spotpriser för el:** Appen hämtar offentliga elprisdata från öppna API:er (t.ex. Elering API). Inga enhets- eller personidentifierare skickas med dessa förfrågningar.
+2. **Lokal styrning av Shelly-enheter:** Appen kommunicerar direkt med Shelly-reläer i ditt lokala hemnätverk (Wi-Fi / LAN). Kommunikationen sker helt lokalt mellan din enhet och Shelly-reläet utan molntjänster.
+3. **Skriptuppdateringar:** Appen kontrollerar och laddar ner de senaste styrskripten direkt från det offentliga GitHub-arkivet (`raw.githubusercontent.com`).
+
+### 4. Enhetsbehörigheter (Permissions)
+- **Lokalt nätverk och Wi-Fi (Local Network):** Appen behöver åtkomst till det lokala nätverket för att hitta och styra Shelly-enheter i ditt hemnätverk.
+- **Internetåtkomst:** Krävs för att ladda ner aktuella elpriser och skriptuppdateringar.
+
+### 5. Analys och spårning
+Appen **använder inte** några analys- eller spårningsverktyg från tredje part (såsom Google Analytics, Firebase Analytics, annons-ID `AD_ID` eller liknande spårningsbibliotek).
+
+### 6. Kontaktuppgifter
+Om du har frågor om appen eller denna integritetspolicy kan du kontakta utvecklaren:
+- **Utvecklare:** Matias Kaski
+- **E-post:** kaskimatias@gmail.com
+- **Webbplats / Källkod:** [GitHub Repository](https://github.com/kaski93/Porssisahko-app)
